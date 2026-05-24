@@ -31,11 +31,51 @@ yarn-error.*
 *.pem
 
 # local env files
+.env
+.env.*
 .env*.local
+
+# Persistent Chromium user-data dirs from internal tooling (gcp-setup.mjs,
+# cf-cleanup.mjs). These contain logged-in cookies / auth state and MUST
+# NEVER be committed. Same for any temporary output the scripts emit.
+cf-session/
+gcp-session/
+cf-token.txt
+google-client-id.txt
+cf-*.png
+gcp-*.png
+phone-*.png
+
+# Stale folder from the pre-Pages migration. Contains an old .env. Delete
+# it once you're sure it isn't needed; ignored here as belt-and-braces.
+cloudflare-worker.old/
 
 # typescript
 *.tsbuildinfo
 
+# build / dev logs (may contain local paths or fingerprints)
+expo.log
+*.log
+dashboard.log
+
 # generated native folders
 /ios
 /android
+
+# Local tooling state (Claude Code, MCP browser sessions, Wrangler cache)
+.claude/
+.playwright-mcp/
+.wrangler/
+.mcp.json
+CLAUDE.md
+
+# Local-only reference material - NOT for the public repo
+steam-apk/
+steam-images/
+franchise-llm-test/
+
+# Local screenshots / reports
+report-*.png
+
+# Windows shell artifact from a stray `> nul` redirect
+nul
