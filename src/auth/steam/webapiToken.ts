@@ -1,5 +1,5 @@
 /**
- * webapi_token — session-bound token Steam mints on demand for any
+ * webapi_token - session-bound token Steam mints on demand for any
  * logged-in browser session. Many api.steampowered.com endpoints
  * (IWishlistService/GetWishlist, IPlayerService/*, ILoyaltyRewardsService/*,
  * IStoreBrowseService/GetItems, ...) accept this token in place of a
@@ -8,7 +8,7 @@
  * Why we use it instead of a developer key:
  *   - A developer Web API key is registered to a single domain, and
  *     embedding one would force everyone using this open-source app to
- *     share rate limits with the original developer (or worse — leak
+ *     share rate limits with the original developer (or worse - leak
  *     the key on every commit).
  *   - The webapi_token is bound to the user's session cookie. It works
  *     only for their account, expires when their session does, and is
@@ -20,11 +20,11 @@
  * Cached in-memory for 24h. We deliberately do NOT persist this token to
  * AsyncStorage: it is a session-bound bearer credential, and AsyncStorage on
  * Android is unencrypted SharedPreferences (similarly an unencrypted plist
- * on iOS). Keeping it in JS memory only means it dies with the process —
+ * on iOS). Keeping it in JS memory only means it dies with the process -
  * worst case is one extra request to /pointssummary/ajaxgetasyncconfig on
  * cold start to mint a fresh token from the persistent cookie jar (which is
  * the one and only credential that lives across launches, and lives only in
- * the OS-managed sandboxed cookie store — see SteamAuth.tsx §3).
+ * the OS-managed sandboxed cookie store - see SteamAuth.tsx §3).
  *
  * We refetch on 401 from any endpoint that uses it (handled per-fetcher).
  */
@@ -53,7 +53,7 @@ const TOKEN_INJECTED_JS = `
   })();
 `;
 
-/** Single in-flight promise — coalesces concurrent calls into one fetch. */
+/** Single in-flight promise - coalesces concurrent calls into one fetch. */
 let inFlight: Promise<string | null> | null = null;
 
 /**

@@ -1,5 +1,5 @@
 /**
- * Steam OpenID 2.0 helpers. Pure functions — no React, no I/O state.
+ * Steam OpenID 2.0 helpers. Pure functions - no React, no I/O state.
  *
  * Flow recap (see SteamAuth.ts for the full security narrative):
  *   1. buildLoginUrl(nonce)         → URL the WebView loads.
@@ -9,7 +9,7 @@
  *   4. checkAuthentication(params)   → posts params back to Steam with
  *                                       openid.mode=check_authentication.
  *                                       Returns true only if Steam signs
- *                                       off on the claim — the cryptographic
+ *                                       off on the claim - the cryptographic
  *                                       guarantee against forged deep links.
  */
 
@@ -17,14 +17,14 @@ import * as Crypto from 'expo-crypto';
 
 const STEAM_OPENID = 'https://steamcommunity.com/openid/login';
 /**
- * Steam OpenID rejects non-http(s) `openid.return_to` URLs — including
- * Expo app schemes like steamtoolsdeals:// — with "Invalid return
+ * Steam OpenID rejects non-http(s) `openid.return_to` URLs - including
+ * Expo app schemes like steamtoolsdeals:// - with "Invalid return
  * protocol". We must use an HTTPS URL. We never actually load it; the
  * WebView's onShouldStartLoadWithRequest fires before any network
  * fetch is attempted, so we intercept the redirect there and tear the
  * modal down before the URL is resolved. The .app domain we use here
  * is reserved (HSTS-preloaded HTTPS only) so a stray load attempt would
- * fail cleanly — but the interceptor always wins the race in practice.
+ * fail cleanly - but the interceptor always wins the race in practice.
  */
 const RETURN_TO    = 'https://steamtoolsdeals.app/auth';
 const REALM        = 'https://steamtoolsdeals.app/';
@@ -118,7 +118,7 @@ export function parseReturnTo(url: string): OpenIdReturn | null {
   const steamId64 = m[1];
   const accountId = Number(BigInt(steamId64) - STEAMID64_BASE);
 
-  // Re-collect every openid.* param into a plain object — these are the
+  // Re-collect every openid.* param into a plain object - these are the
   // exact bytes we must POST back for check_authentication.
   const params: Record<string, string> = {};
   for (const [k, v] of usp.entries()) {
@@ -132,14 +132,14 @@ export function parseReturnTo(url: string): OpenIdReturn | null {
 
 /**
  * Steam OpenID 2.0 verification step. The redirect URL is NOT signed by a
- * key we hold — anyone could craft `steamtoolsdeals://auth?openid.…`. The
+ * key we hold - anyone could craft `steamtoolsdeals://auth?openid.…`. The
  * only trustworthy verification path is to POST the params back to Steam
  * with openid.mode=check_authentication. Steam responds with a small text
  * body containing `is_valid:true` or `is_valid:false`. Only Steam can mint
  * the HMAC of the signed fields against the OpenID association handle it
  * issued, so a `true` response means the claim genuinely came from Steam.
  *
- * No cookies / auth headers needed here — this endpoint is open.
+ * No cookies / auth headers needed here - this endpoint is open.
  */
 export async function checkAuthentication(params: Record<string, string>): Promise<boolean> {
   const body = new URLSearchParams(params);

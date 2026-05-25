@@ -1,5 +1,5 @@
 /**
- * Market fetchers — active listings + history. Both pages embed JSON in
+ * Market fetchers - active listings + history. Both pages embed JSON in
  * a window.* global which we'll grab via injected JS in the full parser.
  */
 import { register } from '../refreshScheduler';

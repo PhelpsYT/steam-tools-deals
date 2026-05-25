@@ -1,25 +1,25 @@
 /**
- * webviewBridge — generalises the hidden-WebView pattern from
+ * webviewBridge - generalises the hidden-WebView pattern from
  * SteamSyncContext.tsx into a reusable promise-returning API.
  *
  * Why a singleton + queue: react-native-webview must live inside the
  * React tree. We expose a plain async function `bridgeRunOnce(uri, js)`
  * that everything else (the refresh scheduler, the fetchers) can call
  * without owning a WebView component themselves. The function enqueues
- * a request and the host component pops up to 3 in parallel — same
+ * a request and the host component pops up to 3 in parallel - same
  * concurrency cap discussed in the plan (Steam rate-limits at roughly
  * 10 RPS per IP on community endpoints).
  *
  * Cookie behaviour: each WebView uses sharedCookiesEnabled +
  * thirdPartyCookiesEnabled, so every request implicitly carries the
  * Steam session cookie that SteamAuth's login modal landed in the jar.
- * The cookie never crosses the JS bridge — only the parsed page output
+ * The cookie never crosses the JS bridge - only the parsed page output
  * (whatever the injected JS posts back) does.
  *
  * Stuck-timer + inFlight: each request has a 20s timeout. The WebView
  * itself re-mounts per request (we render a fresh component with a new
  * key for each request); this guarantees injectedJavaScript fires every
- * time — same rationale as SteamSyncContext.tsx lines 80-83.
+ * time - same rationale as SteamSyncContext.tsx lines 80-83.
  */
 
 import React, { useEffect, useRef, useState } from 'react';
@@ -33,7 +33,7 @@ const MAX_CONCURRENT = 3;
 // originWhitelist wildcard `*.` only matches subdomains, so without the
 // apex variants requests to `https://steamcommunity.com/...` (no
 // subdomain) fail the whitelist and the library calls Linking.canOpenURL
-// on the URL — surfacing "Can't open url: ..." LogBox warnings even
+// on the URL - surfacing "Can't open url: ..." LogBox warnings even
 // before our onShouldStartLoadWithRequest gate runs. The wildcards still
 // matter for redirects like login.steampowered.com.
 const STEAM_ORIGIN_WHITELIST = [
@@ -43,7 +43,7 @@ const STEAM_ORIGIN_WHITELIST = [
   'https://*.steamcommunity.com',
 ];
 
-// ─── Default JS — extract document.body.innerText ─────────────────────────────
+// ─── Default JS - extract document.body.innerText ─────────────────────────────
 
 export const DEFAULT_INJECTED_JS = `
   (function() {
@@ -169,7 +169,7 @@ export const WebViewBridgeHost: React.FC = () => {
       r.reject(new Error('bridge_bad_json'));
     }
     setActive((prev) => prev.filter((p) => p.id !== r.id));
-    // Pump again — there may be queued requests waiting for a free slot.
+    // Pump again - there may be queued requests waiting for a free slot.
     notifyHost?.();
   };
 
@@ -204,7 +204,7 @@ export const WebViewBridgeHost: React.FC = () => {
           originWhitelist={STEAM_ORIGIN_WHITELIST}
           setSupportMultipleWindows={false}
           javaScriptCanOpenWindowsAutomatically={false}
-          // Custom navigation gate — without one, react-native-webview's
+          // Custom navigation gate - without one, react-native-webview's
           // default handler calls Linking.canOpenURL for any cross-window
           // link (e.g. /id/<name>/badges, /friends sidebar items on Steam
           // pages), surfacing "Can't open url: ..." LogBox warnings. We

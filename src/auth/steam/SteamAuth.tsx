@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 /**
  * ═══════════════════════════════════════════════════════════════════════════
- *  SteamAuth.ts — On-device Steam login + authenticated data mirror.
+ *  SteamAuth.ts - On-device Steam login + authenticated data mirror.
  *  Master file for the src/auth/steam/ module.
  * ═══════════════════════════════════════════════════════════════════════════
  *
@@ -21,7 +21,7 @@
  *  <input type="password" autocomplete="current-password">, so Android
  *  Autofill / iOS Keychain / Bitwarden / 1Password all recognise it and
  *  offer the user's stored Steam credentials. A custom React Native form
- *  would not — OS password managers blacklist unknown apps' fake forms
+ *  would not - OS password managers blacklist unknown apps' fake forms
  *  to prevent phishing.
  *
  *  Two-factor (Steam Guard, email, mobile authenticator) is handled
@@ -37,9 +37,9 @@
  *  the WebView. They land in:
  *    • Android: a SQLite file inside the app's private storage at
  *      /data/data/com.steamtoolsdeals.app/app_webview/Cookies. Sandboxed
- *      to this app — other apps cannot read it without root.
+ *      to this app - other apps cannot read it without root.
  *    • iOS: WKHTTPCookieStorage keyed to the app's WKWebsiteDataStore.
- *      Sandboxed to this app — other apps cannot read it without
+ *      Sandboxed to this app - other apps cannot read it without
  *      jailbreak.
  *  We never copy the cookie into JavaScript state, never log it, never
  *  serialise it to AsyncStorage, never send it to a server. The cookie
@@ -53,7 +53,7 @@
  *  the cookies still attach automatically and we don't need a native
  *  CookieManager dependency (which would crash Expo Go). The net effect
  *  is the same: the session is killed server-side, and the jar is empty
- *  before the next signIn() attempt — so a different person on the same
+ *  before the next signIn() attempt - so a different person on the same
  *  device cannot ride a stale cookie into someone else's account.
  *
  *  4. WHY WE TRUST THE OPENID CLAIM
@@ -68,19 +68,19 @@
  *        via expo-crypto and embeds it in the OpenID `return_to` URL. On
  *        receipt of the redirect we compare the returned nonce to the
  *        in-memory nonce. A captured deep link from a prior session
- *        won't match — replay defeated.
+ *        won't match - replay defeated.
  *    (b) check_authentication. We POST every openid.* param back to
  *        steamcommunity.com/openid/login with openid.mode=
  *        check_authentication. Steam responds `is_valid:true` only when
  *        the HMAC of the signed fields matches the OpenID association
  *        handle it issued during step (3) of the spec. We don't know the
- *        secret — Steam checks it for us. Anyone forging a redirect
+ *        secret - Steam checks it for us. Anyone forging a redirect
  *        without that secret gets `is_valid:false` here.
  *  Both must pass before we accept the SteamID.
  *
  *  5. WHY WE DON'T STORE THE PASSWORD OR REFRESH TOKENS
  *  ─────────────────────────────────────────────────────────────────────────
- *  We literally cannot. Steam OpenID 2.0 has no refresh-token concept —
+ *  We literally cannot. Steam OpenID 2.0 has no refresh-token concept -
  *  "refresh" just means "the existing session cookie still authenticates
  *  the next request." When Steam's cookie expires (typically months for
  *  Remember-Me sessions) we surface a non-blocking banner and the user
@@ -89,7 +89,7 @@
  *
  *  We deliberately avoided reimplementing Steam's mobile-app login API
  *  (IAuthenticationService/BeginAuthSessionViaCredentials). That flow
- *  would force us to handle the raw password and RSA-encrypt it — i.e.
+ *  would force us to handle the raw password and RSA-encrypt it - i.e.
  *  it would put the credential through our code, exactly what this
  *  design prevents.
  *
@@ -106,17 +106,17 @@
  *  No proprietary protocol is implemented anywhere. Every endpoint is
  *  documented (Steam Web API) or community-known (SteamDB / Augmented
  *  Steam / steam-user). Forks can change app.json:scheme and the
- *  RETURN_TO constant in openid.ts without breaking anything — there is
+ *  RETURN_TO constant in openid.ts without breaking anything - there is
  *  no Valve-side client-id registration because OpenID 2.0 is keyless.
  *
  *  7. THREAT MODEL
  *  ─────────────────────────────────────────────────────────────────────────
  *  In scope (mitigated):
- *    • Network attackers — every request is HTTPS, no cleartext fallback.
- *    • Redirect/deep-link forgery — nonce + check_authentication (§4).
- *    • Other apps on the same device — sandboxed cookie jar (§3).
- *    • Accidental key leak in this source repo — there are no keys.
- *    • Session hijack from our own app — the cookie never crosses the
+ *    • Network attackers - every request is HTTPS, no cleartext fallback.
+ *    • Redirect/deep-link forgery - nonce + check_authentication (§4).
+ *    • Other apps on the same device - sandboxed cookie jar (§3).
+ *    • Accidental key leak in this source repo - there are no keys.
+ *    • Session hijack from our own app - the cookie never crosses the
  *      JS bridge or hits AsyncStorage (§3).
  *  Out of scope (cannot mitigate on-device):
  *    • Rooted / jailbroken devices that can read other apps' sandboxes.
@@ -134,7 +134,7 @@
  *  See SteamSyncContext.tsx lines 80-83: reload() can leave stale DOM
  *  state and doesn't reliably re-fire injectedJavaScript. Re-mounting
  *  via a `tick` key guarantees a fresh load + a fresh JS injection. The
- *  pages we hit are JSON or small HTML — the re-mount cost is trivial.
+ *  pages we hit are JSON or small HTML - the re-mount cost is trivial.
  *
  *  9. WHY EVERY FETCHER MUST BE NO-THROW
  *  ─────────────────────────────────────────────────────────────────────────
@@ -149,8 +149,8 @@
  *  A backend would force every user to trust us with their Steam session
  *  cookie. That trust isn't necessary: Valve already has the cookie, the
  *  user keeps the only copy on their device, and we never see it. The
- *  entire design exists so anyone reading this repo — contributors,
- *  forks, security auditors — can confirm by inspection that no
+ *  entire design exists so anyone reading this repo - contributors,
+ *  forks, security auditors - can confirm by inspection that no
  *  credential or session token ever leaves the phone.
  *
  * ═══════════════════════════════════════════════════════════════════════════
@@ -272,10 +272,10 @@ export interface SteamAuthValue {
   data: SteamUserData;
   signIn: () => Promise<void>;
   signOut: () => Promise<void>;
-  /** Internal — used by the refreshScheduler in Phase 3 to write parsed
+  /** Internal - used by the refreshScheduler in Phase 3 to write parsed
    *  payloads back into the reducer. */
   applyFetcherResult: <T>(key: FetcherKey, slice: keyof SteamUserData, data: T) => void;
-  /** Internal — mark a fetcher attempt as failed (cached data kept). */
+  /** Internal - mark a fetcher attempt as failed (cached data kept). */
   markFetcherFailed: (key: FetcherKey, error: string) => void;
   /** Forces the in-memory state to be re-read from the WebView session
    *  ping. Used by the session-expiry watcher in Phase 6. */
@@ -337,7 +337,7 @@ function reducer(state: SteamUserData, action: Action): SteamUserData {
       return { ...state, meta };
     }
     case 'SESSION_EXPIRED':
-      // Intentionally keep all cached slices — better stale than blank.
+      // Intentionally keep all cached slices - better stale than blank.
       return state;
     case 'SIGNED_OUT':
       return emptyUserData();
@@ -363,7 +363,7 @@ export const SteamAuthProvider: React.FC<{ children: React.ReactNode }> = ({
   const [webviewVisible, setWebviewVisible] = useState(false);
   const [loginUrl, setLoginUrl] = useState<string | null>(null);
 
-  // In-memory nonce — never serialised. Cleared after each login attempt.
+  // In-memory nonce - never serialised. Cleared after each login attempt.
   const nonceRef = useRef<string | null>(null);
   // Guards handleNavigation from firing twice for the same return URL.
   // onShouldStartLoadWithRequest and onNavigationStateChange can both
@@ -374,7 +374,7 @@ export const SteamAuthProvider: React.FC<{ children: React.ReactNode }> = ({
   const processedReturnUrlRef = useRef<string | null>(null);
 
   // Always-current refs for use inside non-React callbacks (sink listeners,
-  // AppState handlers) — avoids stale closure captures.
+  // AppState handlers) - avoids stale closure captures.
   const steamIdRef = useRef<string>(profile.steamId || '');
   steamIdRef.current = profile.steamId || '';
   const linkedRef = useRef<boolean>(linked && profile.authMethod === 'steam');
@@ -386,7 +386,7 @@ export const SteamAuthProvider: React.FC<{ children: React.ReactNode }> = ({
   }, []);
 
   // Cross-domain cookie recovery used to live here. It's been folded
-  // into SteamSyncContext.tsx — that module loads /account/ as the
+  // into SteamSyncContext.tsx - that module loads /account/ as the
   // dynamicstore source URL, which lets Steam do the JWT refresh +
   // cookie transfer on the same WebView that then fetches dynamicstore.
   // Single round trip per refresh, no race with this provider.
@@ -446,7 +446,7 @@ export const SteamAuthProvider: React.FC<{ children: React.ReactNode }> = ({
     };
   }, []);
 
-  // Persist SteamUserData on every change. Cheap — single AsyncStorage.setItem.
+  // Persist SteamUserData on every change. Cheap - single AsyncStorage.setItem.
   useEffect(() => {
     writeUserData(data);
   }, [data]);
@@ -487,7 +487,7 @@ export const SteamAuthProvider: React.FC<{ children: React.ReactNode }> = ({
         return;
       }
 
-      // Success path — Steam OpenID requires an HTTPS return_to URL, so
+      // Success path - Steam OpenID requires an HTTPS return_to URL, so
       // we point it at https://steamtoolsdeals.app/auth (a domain we
       // don't own) and intercept the navigation before the WebView
       // actually fetches it. See openid.ts for the RETURN_TO definition.
@@ -519,7 +519,7 @@ export const SteamAuthProvider: React.FC<{ children: React.ReactNode }> = ({
           return;
         }
 
-        // Replay defense — the nonce returned in the URL must match the
+        // Replay defense - the nonce returned in the URL must match the
         // one we generated for THIS attempt.
         if (parsed.nonce !== nonceRef.current) {
           setWebviewVisible(false);
@@ -530,7 +530,7 @@ export const SteamAuthProvider: React.FC<{ children: React.ReactNode }> = ({
         }
         nonceRef.current = null;
 
-        // Signature check — only Steam can mint a valid is_valid:true.
+        // Signature check - only Steam can mint a valid is_valid:true.
         const valid = await checkAuthentication(parsed.params);
         if (!valid) {
           setWebviewVisible(false);
@@ -542,7 +542,7 @@ export const SteamAuthProvider: React.FC<{ children: React.ReactNode }> = ({
 
         // Confirmed: write headline fields back to ProfileContext so the
         // existing UI lights up. The full SteamUserData fetch is owned by
-        // the refresh scheduler — kicked off in Phase 3.
+        // the refresh scheduler - kicked off in Phase 3.
         const nextProfile: ProfileData = {
           ...profile,
           steamId: parsed.steamId64,
@@ -550,13 +550,13 @@ export const SteamAuthProvider: React.FC<{ children: React.ReactNode }> = ({
         };
         setLinkedProfile(nextProfile);
         await writeSessionState('signed-in');
-        // Close the modal in one shot — overlay disappears with it.
+        // Close the modal in one shot - overlay disappears with it.
         setWebviewVisible(false);
         setLoginUrl(null);
         setLoginState('signed-in');
-        // Kick the wake-up cascade — see refreshScheduler.runSignInBurst.
+        // Kick the wake-up cascade - see refreshScheduler.runSignInBurst.
         // (Cross-domain cookie priming is owned by SteamSyncContext, which
-        // loads store.steampowered.com as its dynamicstore source page —
+        // loads store.steampowered.com as its dynamicstore source page -
         // see the comment on USERDATA_URL there.)
         void runSignInBurst(buildCtx);
       }
@@ -569,7 +569,7 @@ export const SteamAuthProvider: React.FC<{ children: React.ReactNode }> = ({
     // Why we don't call CookieManager.clearAll() directly: @react-native-
     // cookies/cookies is a native module that isn't bundled into Expo Go,
     // so importing it crashes the dev client. Instead we ask Steam itself
-    // to invalidate the session — that's the only way to guarantee both
+    // to invalidate the session - that's the only way to guarantee both
     //   (a) the steamLoginSecure / sessionid cookies are removed from the
     //       WebView jar (Steam sends Set-Cookie max-age=0 in the response),
     //   (b) the session is killed server-side, so even if a cookie copy
@@ -584,14 +584,14 @@ export const SteamAuthProvider: React.FC<{ children: React.ReactNode }> = ({
     //   3. Reports back when Steam responds (which is when Set-Cookie has
     //      already flushed the auth cookies to the WebView's jar).
     //
-    // We hit ONLY steamcommunity.com — not store.steampowered.com. Reason:
+    // We hit ONLY steamcommunity.com - not store.steampowered.com. Reason:
     // the security finding the POST-logout addresses is "the next sign-in
     // can auto-complete as the previous user", which depends on the
     // community session being still valid (Steam's OpenID flow runs on
     // steamcommunity.com/openid). Clearing the community cookie forces
     // re-auth on next sign-in. The store-domain cookie is a separate
     // session used only by store endpoints (dynamicstore, /account/, ...);
-    // clearing it does not improve security — it just leaves the user's
+    // clearing it does not improve security - it just leaves the user's
     // library appearing empty until Steam's cross-domain login transfer
     // re-issues it, which is not reliably triggered by our OpenID return
     // flow. Leaving the store cookie alone keeps the user's data working
@@ -637,7 +637,7 @@ export const SteamAuthProvider: React.FC<{ children: React.ReactNode }> = ({
     return () => {
       alive = false;
     };
-    // Only on mount — `linked`/`profile.authMethod` are stable enough that
+    // Only on mount - `linked`/`profile.authMethod` are stable enough that
     // re-running this on every render isn't needed.
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
@@ -679,10 +679,10 @@ export const SteamAuthProvider: React.FC<{ children: React.ReactNode }> = ({
 // ─── Login modal ─────────────────────────────────────────────────────────────
 
 /**
- * GitHub mark — used as the right-side action in the modal header. Tapping
+ * GitHub mark - used as the right-side action in the modal header. Tapping
  * opens the repo in a Custom Tab via expo-web-browser (NOT inside our auth
  * WebView), so the Steam session in our jar stays clean. Doubles as a
- * trust signal — the user can verify the login pipeline they're about to
+ * trust signal - the user can verify the login pipeline they're about to
  * trust is open-source.
  */
 const OPEN_SOURCE_URL = 'https://github.com/PhelpsYT/steam-tools-deals';
@@ -765,7 +765,7 @@ const LoginModal: React.FC<{
           sharedCookiesEnabled
           thirdPartyCookiesEnabled
           incognito={false}
-          // Allow all origins to LOAD inside the WebView — origin filtering
+          // Allow all origins to LOAD inside the WebView - origin filtering
           // happens in onShouldStartLoadWithRequest below, which fires
           // before each navigation and lets us veto. A strict
           // originWhitelist plus a redirect to a host we don't own causes
@@ -779,7 +779,7 @@ const LoginModal: React.FC<{
           javaScriptEnabled
           domStorageEnabled
           // Avoid the WebView attempting to open external links in the
-          // system browser — we want everything inside this modal.
+          // system browser - we want everything inside this modal.
           setSupportMultipleWindows={false}
           // Mobile-styled login page (Steam serves a different layout when
           // the UA is mobile, which is the version OS password managers

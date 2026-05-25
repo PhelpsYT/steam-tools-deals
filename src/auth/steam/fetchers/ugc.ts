@@ -1,5 +1,5 @@
 /**
- * UGC fetchers — user reviews, screenshots, videos, artwork, guides,
+ * UGC fetchers - user reviews, screenshots, videos, artwork, guides,
  * workshop uploads. Every endpoint is an HTML community page.
  */
 import { register } from '../refreshScheduler';

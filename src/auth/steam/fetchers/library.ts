@@ -1,8 +1,8 @@
 /**
- * Library fetchers — dynamicstore JSON (ownedAppIds + wishlist + ignored +
+ * Library fetchers - dynamicstore JSON (ownedAppIds + wishlist + ignored +
  * followed + recommended), recently-played, owned games XML with playtime.
  *
- * dynamicstore is the same endpoint SteamSyncContext already calls — the
+ * dynamicstore is the same endpoint SteamSyncContext already calls - the
  * parser logic here is a superset of what's inline there. Phase 5 will
  * refactor SteamSyncContext to call this fetcher instead.
  */
@@ -52,7 +52,7 @@ const dynamicstore: FetcherSpec<Partial<SteamLibrary>> = {
   },
 };
 
-// ─── Recently played (api.steampowered.com — needs webapi_token) ─────────────
+// ─── Recently played (api.steampowered.com - needs webapi_token) ─────────────
 
 const recentlyPlayed: FetcherSpec<unknown> = {
   key: 'library.recentlyPlayed',

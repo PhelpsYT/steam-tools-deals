@@ -1,5 +1,5 @@
 /**
- * Social fetchers — friends, groups, blocked, pending invites. All are
+ * Social fetchers - friends, groups, blocked, pending invites. All are
  * HTML pages that require the session cookie.
  */
 import { register } from '../refreshScheduler';

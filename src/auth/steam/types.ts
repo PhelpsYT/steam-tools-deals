@@ -2,7 +2,7 @@
  * Full TypeScript surface for the Steam authenticated data mirror.
  *
  * The security narrative + architectural "why" lives in SteamAuth.ts. This
- * file is intentionally pure types — no React, no logic — so it can be
+ * file is intentionally pure types - no React, no logic - so it can be
  * imported anywhere (fetchers, screens, the scheduler) without pulling
  * heavyweight modules into the bundle.
  *
@@ -111,7 +111,7 @@ export interface SteamAccount {
   parentalControls?: ParentalControls;
   /** Every license/package id the user has. Drives "where did I get this?". */
   licenses: License[];
-  /** Wallet activity rows — purchases, refunds, gifts, market, etc. */
+  /** Wallet activity rows - purchases, refunds, gifts, market, etc. */
   walletHistory: WalletEvent[];
 }
 
@@ -196,14 +196,14 @@ export interface WalletEvent {
   items: { appId?: number; name: string }[];
   amount: { value: number; formatted: string; currency: string; sign: '+' | '-' };
   walletBalanceAfter?: { value: number; formatted: string };
-  /** Raw row text — kept for forward compatibility when Steam adds new types. */
+  /** Raw row text - kept for forward compatibility when Steam adds new types. */
   raw?: string;
 }
 
 // ─── Library ─────────────────────────────────────────────────────────────────
 
 export interface SteamLibrary {
-  /** Mirrors profile.ownedAppids — duplicated here so consumers can read
+  /** Mirrors profile.ownedAppids - duplicated here so consumers can read
    *  from a single SteamUserData blob. */
   ownedAppIds: number[];
   ignoredAppIds: number[];
@@ -212,7 +212,7 @@ export interface SteamLibrary {
   recommendedAppIds: number[];
   recommendedTagIds: number[];
   excludedTagIds: number[];
-  /** Per-appid game detail — populated lazily as the user opens game pages. */
+  /** Per-appid game detail - populated lazily as the user opens game pages. */
   games: Record<number, OwnedGame>;
   recentlyPlayed: RecentlyPlayed[];
   /** User-defined library categories (the tags the user assigned to games
@@ -452,7 +452,7 @@ export interface SteamPrefs {
   notificationSettings: Record<string, boolean>;
   contentPreferences: ContentPreferences;
   curatorsFollowed: CuratorEntry[];
-  /** Editable privacy state — distinct from identity.privacy which is the
+  /** Editable privacy state - distinct from identity.privacy which is the
    *  read-only inferred state. */
   privacy: ProfilePrivacy;
   giftablePackages?: number[];
@@ -478,7 +478,7 @@ export type FetcherCadence = 'HOT' | 'WARM' | 'COLD' | 'ICE';
 export interface FetchContext {
   steamId64: string;
   accountId: number;
-  /** Token from /pointssummary/ajaxgetasyncconfig — required for many
+  /** Token from /pointssummary/ajaxgetasyncconfig - required for many
    *  api.steampowered.com endpoints when authenticated by session cookie. */
   webapiToken: string | null;
 }
@@ -489,7 +489,7 @@ export interface FetcherSpec<T> {
   cadence: FetcherCadence;
   transport: 'webview' | 'fetch';
   buildUrl(ctx: FetchContext): string;
-  /** MUST NOT throw. Return null on parse failure — the scheduler will keep
+  /** MUST NOT throw. Return null on parse failure - the scheduler will keep
    *  the previously-cached data rather than blank the UI. */
   parse(raw: string, ctx: FetchContext): T | null;
   /** Optional injected JS when transport === 'webview'. Default just posts

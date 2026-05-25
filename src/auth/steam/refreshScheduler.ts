@@ -1,5 +1,5 @@
 /**
- * refreshScheduler — coalescing, prioritised driver for every fetcher.
+ * refreshScheduler - coalescing, prioritised driver for every fetcher.
  *
  * Why a custom scheduler instead of plain useEffect-per-fetcher:
  *   - Multiple triggers (AppState 'active', screen useFocusEffect, periodic
@@ -91,7 +91,7 @@ async function runOne(key: FetcherKey, ctx: FetchContext, force: boolean): Promi
     const ttl = reg.spec.ttlMs ?? DEFAULT_TTLS[reg.spec.cadence];
     const cached = await readCache(key);
     if (cached && Date.now() - cached.at < ttl) {
-      // Cache still warm — no network. Caller's UI already has the value.
+      // Cache still warm - no network. Caller's UI already has the value.
       return { key, ok: true, payload: cached.data, slice: reg.slice };
     }
   }
@@ -170,7 +170,7 @@ export async function runWave(
 }
 
 /**
- * Sign-in burst — the staggered "wake-up cascade" described in the plan
+ * Sign-in burst - the staggered "wake-up cascade" described in the plan
  * (§E.3). Fires in tiers so the UI fills in fastest-first.
  */
 export async function runSignInBurst(ctxBuilder: () => Promise<FetchContext>): Promise<void> {

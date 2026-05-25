@@ -165,7 +165,7 @@ const BlurredBackground: React.FC<{
   const imageSource = bannerUrl || profileBgUrl || avatarUrl;
   const isGameBanner = !!bannerUrl;
   const isProfileBg = !bannerUrl && (!!profileBgVideoUrl || !!profileBgUrl);
-  // Heavy blur ONLY when we're falling back to the avatar as the banner —
+  // Heavy blur ONLY when we're falling back to the avatar as the banner -
   // the avatar source is small (typically 184×184) and gets stretched to
   // full banner size, so without aggressive blur it shows visible pixel
   // grid. Game banners and profile backgrounds are already hi-res; leave
@@ -1827,7 +1827,7 @@ const ProfileScreen: React.FC = () => {
   const [slideInDone, setSlideInDone] = useState(false);
   // Initialise to true unconditionally. ProfileContext hydrates the
   // saved profile from AsyncStorage in an async effect, so the very
-  // first render has `linked=false` even when there IS a saved profile —
+  // first render has `linked=false` even when there IS a saved profile -
   // conditional initialisation would let the stale cached numbers
   // ("125 / 0 / 0") flash for one frame before the hydrate completes
   // and the fetch effect fires. Starting at true is safe: the count
@@ -1880,7 +1880,7 @@ const ProfileScreen: React.FC = () => {
 
   // Sign-in handlers. Steam goes through SteamAuth (OpenID + WebView,
   // see src/auth/steam/SteamAuth.tsx for the full security narrative).
-  // Google is still a stub — independent identity, not yet implemented.
+  // Google is still a stub - independent identity, not yet implemented.
   const {
     signIn: runSteamSignIn,
     signOut: runSteamSignOut,
@@ -1889,7 +1889,7 @@ const ProfileScreen: React.FC = () => {
   const runGoogleSignIn = useCallback(() => {}, []);
 
   // Surface SteamAuth errors through the existing styled popup. We don't
-  // pop one for 'cancelled' — silent close on user-initiated dismissal.
+  // pop one for 'cancelled' - silent close on user-initiated dismissal.
   useEffect(() => {
     if (!steamLoginError) return;
     if (steamLoginError === 'cancelled') return;
@@ -2418,7 +2418,7 @@ const ProfileScreen: React.FC = () => {
             // scheduler reset, @steam/* storage wipe). It calls
             // unlinkProfile internally too, but the call below from
             // animateProfileChange is the one the LayoutAnimation actually
-            // captures — unlinkProfile is idempotent so the duplicate is
+            // captures - unlinkProfile is idempotent so the duplicate is
             // harmless.
             void runSteamSignOut();
             animateProfileChange(() => unlinkProfile());

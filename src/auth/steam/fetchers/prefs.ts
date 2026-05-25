@@ -1,5 +1,5 @@
 /**
- * Preferences fetchers — store prefs, notifications, privacy editable
+ * Preferences fetchers - store prefs, notifications, privacy editable
  * state, curators followed. All under store.steampowered.com and need
  * the session cookie.
  */

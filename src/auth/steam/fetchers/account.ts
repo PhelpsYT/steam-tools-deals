@@ -1,9 +1,9 @@
 /**
- * Account fetchers — wallet, currency, country, email state, Steam Guard,
+ * Account fetchers - wallet, currency, country, email state, Steam Guard,
  * authorized devices, family share, licenses, wallet history, points.
  *
  * All endpoints under store.steampowered.com need the session cookie.
- * Most pages are HTML — we extract by scraping the embedded JS vars and
+ * Most pages are HTML - we extract by scraping the embedded JS vars and
  * data-* attributes. Parsers are stubs for now; the scheduler still calls
  * them so the wiring is exercised. Filling in each parser is independent
  * and ships incrementally.

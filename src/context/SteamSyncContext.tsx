@@ -34,16 +34,16 @@ import { useProfile } from './ProfileContext';
 //      steamcommunity.com cookie (e.g. after a sign-out that wiped the
 //      store-domain jar, or any time the store cookie has expired),
 //      Steam's auth check on /account/ initiates a cross-domain JWT
-//      refresh — it 302-chains through login.steampowered.com, which
+//      refresh - it 302-chains through login.steampowered.com, which
 //      uses the community cookie to mint a fresh JWT and set
 //      steamLoginSecure on store.steampowered.com via /login/transfer.
 //   2. Once the redirect chain lands back on /account/, the page is
 //      rendered WITH the store cookies in the jar.
 //   3. Our injected JS then fetches /dynamicstore/userdata from the same
-//      origin — cookies attach automatically and the response is real.
+//      origin - cookies attach automatically and the response is real.
 // If the user has NO community cookie either (fully signed out), /account/
 // redirects to the login form and the inner fetch returns the anonymous
-// empty payload — handled by the defensive check in handleMessage below.
+// empty payload - handled by the defensive check in handleMessage below.
 const USERDATA_URL = 'https://store.steampowered.com/account/';
 
 const INJECTED_JS = `
@@ -160,11 +160,11 @@ export const SteamSyncProvider: React.FC<{ children: React.ReactNode }> = ({
             : profile.wishlistAppids ?? [];
 
           // Defensive: dynamicstore returns a well-formed JSON with
-          // `rgOwnedApps: []` for ANONYMOUS requests — looks identical to
+          // `rgOwnedApps: []` for ANONYMOUS requests - looks identical to
           // a legitimately-empty library. Treating that as truth would
           // silently overwrite the user's real cached count with 0.
           // Skip ALL empty responses; the only people we deny a "real 0"
-          // to are brand-new Steam accounts with no games yet — for them
+          // to are brand-new Steam accounts with no games yet - for them
           // fetchGamesCount() (the public HTML scrape, no cookies needed)
           // already supplies the correct 0 via profile.gamesCount, which
           // is what ProfileScreen falls back to when ownedAppids is undef
@@ -226,7 +226,7 @@ export const SteamSyncProvider: React.FC<{ children: React.ReactNode }> = ({
             // only matches subdomains, so without the apex entries
             // requests to `https://steamcommunity.com/...` (no subdomain)
             // fail the whitelist and the library calls
-            // Linking.canOpenURL on the URL — producing
+            // Linking.canOpenURL on the URL - producing
             // "Can't open url: ..." LogBox warnings before our gate runs.
             originWhitelist={[
               'https://steampowered.com',
@@ -236,7 +236,7 @@ export const SteamSyncProvider: React.FC<{ children: React.ReactNode }> = ({
             ]}
             setSupportMultipleWindows={false}
             javaScriptCanOpenWindowsAutomatically={false}
-            // Custom handler — without one, react-native-webview's default
+            // Custom handler - without one, react-native-webview's default
             // hits Linking.canOpenURL for any cross-window link (e.g. the
             // /id/<name>/badges and /friends sidebar links on Steam's
             // account page), surfacing "Can't open url: ..." LogBox

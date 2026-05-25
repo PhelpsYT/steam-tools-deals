@@ -12,7 +12,7 @@ import type { SteamUserData, FetcherKey } from './types';
 
 // ─── Key namespace ───────────────────────────────────────────────────────────
 
-/** Full SteamUserData blob — written after every successful fetcher run.
+/** Full SteamUserData blob - written after every successful fetcher run.
  *  Used to rehydrate the in-memory state on app launch BEFORE any network
  *  call completes, so the UI is never blank. */
 export const KEY_USERDATA = '@steam/userdata';
@@ -20,7 +20,7 @@ export const KEY_USERDATA = '@steam/userdata';
 /** Per-fetcher cache slot prefix. Final key is `@steam/cache/<fetcherKey>`. */
 export const KEY_CACHE_PREFIX = '@steam/cache/';
 
-/** Last-known session state — used so the UI can render the "expired" banner
+/** Last-known session state - used so the UI can render the "expired" banner
  *  immediately on launch (before the session-ping completes). */
 export const KEY_SESSION_STATE = '@steam/session_state';
 
@@ -48,7 +48,7 @@ export async function writeCache<T>(key: FetcherKey, data: T): Promise<void> {
     const entry: CacheEntry<T> = { at: Date.now(), data };
     await AsyncStorage.setItem(KEY_CACHE_PREFIX + key, JSON.stringify(entry));
   } catch {
-    // Swallow — caching is best-effort, never block the scheduler.
+    // Swallow - caching is best-effort, never block the scheduler.
   }
 }
 

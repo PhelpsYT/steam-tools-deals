@@ -1,5 +1,5 @@
 /**
- * Wishlist fetchers — appids + priority via IWishlistService, prices via
+ * Wishlist fetchers - appids + priority via IWishlistService, prices via
  * IStoreBrowseService (batched 50/call). Parsers will land incrementally.
  */
 import { register } from '../refreshScheduler';

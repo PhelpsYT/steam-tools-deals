@@ -1,5 +1,5 @@
 /**
- * Identity fetchers — drive avatar, persona, online state, level, frame,
+ * Identity fetchers - drive avatar, persona, online state, level, frame,
  * background, ban state. Public profile XML + miniprofile JSON are
  * anonymous-readable; /badges/ and /edit/info/ need the session cookie.
  *
@@ -15,7 +15,7 @@ const XML_INJECTED_JS = `
   (function() {
     try {
       // The XML page is served as text; document.body.innerText strips
-      // tags. We need the raw source — use documentElement.outerHTML.
+      // tags. We need the raw source - use documentElement.outerHTML.
       var raw = document.documentElement ? document.documentElement.outerHTML : '';
       window.ReactNativeWebView.postMessage(JSON.stringify({ kind: 'ok', text: raw }));
     } catch (e) {
@@ -184,7 +184,7 @@ const miniprofile: FetcherSpec<MiniprofilePayload> = {
   },
 };
 
-// ─── Stubs (full parsers can land later — see plan §D) ───────────────────────
+// ─── Stubs (full parsers can land later - see plan §D) ───────────────────────
 
 const badges: FetcherSpec<unknown> = {
   key: 'identity.badges',

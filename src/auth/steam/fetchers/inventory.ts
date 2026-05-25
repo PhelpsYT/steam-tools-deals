@@ -1,5 +1,5 @@
 /**
- * Inventory fetchers — community 753/6 + per-game (lazy). Steam serves
+ * Inventory fetchers - community 753/6 + per-game (lazy). Steam serves
  * inventory as JSON keyed off classid/instanceid; parser will normalise.
  */
 import { register } from '../refreshScheduler';
