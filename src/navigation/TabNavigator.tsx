@@ -5,41 +5,16 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import Svg, { Path } from 'react-native-svg';
 import { LinearGradient } from 'expo-linear-gradient';
 import { colors } from '../theme';
+import {
+  clearIndicatorCallbacks,
+  registerIndicatorResetCallback,
+  registerIndicatorStretchCallback,
+  setSwipeNavigation,
+} from './tabGestures';
 
 const { width: SCREEN_WIDTH } = Dimensions.get('window');
 const TAB_COUNT = 4;
 const TAB_WIDTH = SCREEN_WIDTH / TAB_COUNT;
-
-// Global flag to track if navigation was triggered by swipe
-let isSwipeNavigation = false;
-
-export const setSwipeNavigation = (value: boolean) => {
-  isSwipeNavigation = value;
-};
-
-// Global callback for indicator stretch during drag (with direction)
-let onIndicatorStretch: ((stretchAmount: number, direction: number) => void) | null = null;
-let onIndicatorReset: (() => void) | null = null;
-
-export const setIndicatorStretch = (stretch: number, direction: number) => {
-  if (onIndicatorStretch) {
-    onIndicatorStretch(stretch, direction);
-  }
-};
-
-export const resetIndicatorStretch = () => {
-  if (onIndicatorReset) {
-    onIndicatorReset();
-  }
-};
-
-const registerIndicatorStretchCallback = (callback: (stretch: number, direction: number) => void) => {
-  onIndicatorStretch = callback;
-};
-
-const registerIndicatorResetCallback = (callback: () => void) => {
-  onIndicatorReset = callback;
-};
 
 // Import screens
 import HomeScreen from '../screens/HomeScreen';
@@ -125,8 +100,7 @@ const CustomTabBar: React.FC<BottomTabBarProps> = ({ state, navigation }) => {
       }).start();
     });
     return () => {
-      onIndicatorStretch = null;
-      onIndicatorReset = null;
+      clearIndicatorCallbacks();
     };
   }, []);
 
@@ -147,7 +121,7 @@ const CustomTabBar: React.FC<BottomTabBarProps> = ({ state, navigation }) => {
       useNativeDriver: true,
     }).start();
 
-    isSwipeNavigation = false;
+    setSwipeNavigation(false);
     previousIndex.current = state.index;
   }, [state.index]);
 
@@ -178,7 +152,7 @@ const CustomTabBar: React.FC<BottomTabBarProps> = ({ state, navigation }) => {
             });
 
             if (!isFocused && !event.defaultPrevented) {
-              isSwipeNavigation = false;
+              setSwipeNavigation(false);
               navigation.navigate(route.name);
             }
           };

@@ -51,6 +51,13 @@ export interface ProfileData {
    *  server-side via Google's JWKS in the worker; what's stored here is
    *  only what came back from that trusted verification. */
   google?: GoogleIdentity;
+  /** Comprehensive on-device mirror of everything the signed-in Steam web
+   *  session has access to (wallet, full wishlist with prices, friends,
+   *  inventory, market, transactions, etc.). Owned by SteamAuthContext,
+   *  not written from this file. The headline fields above (avatarUrl,
+   *  playerName, walletBalance, gamesCount, onlineState, ...) are still
+   *  duplicated at the top level so existing screens render unchanged. */
+  steam?: import('../auth/steam/types').SteamUserData;
 }
 
 interface GoogleIdentity {
