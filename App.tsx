@@ -16,6 +16,7 @@ import {
 import RootNavigator from './src/navigation/RootNavigator';
 import { ProfileProvider } from './src/context/ProfileContext';
 import { SteamSyncProvider } from './src/context/SteamSyncContext';
+import { SteamAuthProvider } from './src/auth/steam/SteamAuth';
 import { colors } from './src/theme';
 
 // Required by expo-web-browser: must be called once at module load so any
@@ -47,8 +48,9 @@ export default function App() {
         <View style={styles.container}>
           <StatusBar style="light" />
           <ProfileProvider>
-            <SteamSyncProvider>
-              <NavigationContainer
+            <SteamAuthProvider>
+              <SteamSyncProvider>
+                <NavigationContainer
                 theme={{
                   dark: true,
                   colors: {
@@ -69,7 +71,8 @@ export default function App() {
               >
                 <RootNavigator />
               </NavigationContainer>
-            </SteamSyncProvider>
+              </SteamSyncProvider>
+            </SteamAuthProvider>
           </ProfileProvider>
         </View>
       </SafeAreaProvider>

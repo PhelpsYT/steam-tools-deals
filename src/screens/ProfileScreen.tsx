@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef, useCallback, useMemo } from 'react';
+import React, { useState, useEffect, useLayoutEffect, useRef, useCallback, useMemo } from 'react';
 import {
   View,
   Text,
@@ -27,6 +27,7 @@ import { useProfile } from '../context/ProfileContext';
 import type { ProfileData, ProfilePrivacy, SectionVisibility } from '../context/ProfileContext';
 import { usePicsTypes } from '../hooks/usePicsTypes';
 import { useSteamSync } from '../context/SteamSyncContext';
+import { useSteamAuth } from '../auth/steam/SteamAuth';
 import { LoadingLine } from '../components';
 
 const SCREEN_HEIGHT = Dimensions.get('window').height;
@@ -164,7 +165,13 @@ const BlurredBackground: React.FC<{
   const imageSource = bannerUrl || profileBgUrl || avatarUrl;
   const isGameBanner = !!bannerUrl;
   const isProfileBg = !bannerUrl && (!!profileBgVideoUrl || !!profileBgUrl);
-  const blurRadius = isGameBanner ? 0 : isProfileBg ? 0 : 3;
+  // Heavy blur ONLY when we're falling back to the avatar as the banner —
+  // the avatar source is small (typically 184×184) and gets stretched to
+  // full banner size, so without aggressive blur it shows visible pixel
+  // grid. Game banners and profile backgrounds are already hi-res; leave
+  // them sharp.
+  const isAvatarFallback = !isGameBanner && !isProfileBg;
+  const blurRadius = isAvatarFallback ? 30 : 0;
   const dimOpacity = isGameBanner ? 0.45 : isProfileBg ? 0.35 : 0.65;
 
   // Crossfade the video layer based on whether we should be showing it.
@@ -686,7 +693,7 @@ const InfoBoxes: React.FC<{
     <View style={styles.infoBoxRow}>
       <TouchableOpacity style={styles.infoBox} activeOpacity={0.7} onPress={onAppsPress}>
         <View style={styles.infoBoxValueRow}>
-          {loading && !profile.ownedAppids
+          {loading
             ? <LoadingDots color={colors.text.primary} size={18} />
             : <Text style={styles.infoBoxNumber}>
                 {profile.ownedAppids?.length ?? profile.gamesCount}
@@ -696,7 +703,7 @@ const InfoBoxes: React.FC<{
       </TouchableOpacity>
       <TouchableOpacity style={styles.infoBox} activeOpacity={0.7} onPress={onGamesPress}>
         <View style={styles.infoBoxValueRow}>
-          {picsScanning && (gamesOnlyCount === undefined || gamesOnlyCount === 0)
+          {loading || picsScanning
             ? <LoadingDots color={colors.text.primary} size={18} />
             : <Text style={styles.infoBoxNumber}>{gamesOnlyCount ?? 0}</Text>}
         </View>
@@ -704,7 +711,7 @@ const InfoBoxes: React.FC<{
       </TouchableOpacity>
       <TouchableOpacity style={styles.infoBox} activeOpacity={0.7} onPress={onWishlistPress}>
         <View style={styles.infoBoxValueRow}>
-          {loading && !profile.wishlistAppids
+          {loading
             ? <LoadingDots color={colors.text.primary} size={18} />
             : <Text style={styles.infoBoxNumber}>
                 {profile.wishlistAppids?.length ?? 0}
@@ -971,7 +978,6 @@ async function fetchInventoryCount(steamId64: string): Promise<number> {
     if (!res.ok) return 0;
     const html = await res.text();
 
-    // Extract g_rgAppContextData JSON from the page
     const match = html.match(/g_rgAppContextData\s*=\s*({[\s\S]*?});/);
     if (!match) return 0;
 
@@ -1595,7 +1601,7 @@ const ConfirmDialog: React.FC<ConfirmDialogProps> = ({
   // more JS work but reliably animates inside the modal.
   const shimmerX = useDialogShimmer(visible);
   return (
-    <Modal visible={visible} transparent animationType="fade" onRequestClose={onCancel}>
+    <Modal visible={visible} transparent animationType="none" onRequestClose={onCancel}>
       <Pressable style={dialogStyles.backdrop} onPress={onCancel}>
         <Pressable style={dialogStyles.cardWrap} onPress={() => {}}>
           <View style={dialogStyles.card}>
@@ -1819,7 +1825,16 @@ const ProfileScreen: React.FC = () => {
   const bgOpacity = useRef(new Animated.Value(0)).current;
   const contentOpacity = useRef(new Animated.Value(1)).current;
   const [slideInDone, setSlideInDone] = useState(false);
-  const [countsLoading, setCountsLoading] = useState(false);
+  // Initialise to true unconditionally. ProfileContext hydrates the
+  // saved profile from AsyncStorage in an async effect, so the very
+  // first render has `linked=false` even when there IS a saved profile —
+  // conditional initialisation would let the stale cached numbers
+  // ("125 / 0 / 0") flash for one frame before the hydrate completes
+  // and the fetch effect fires. Starting at true is safe: the count
+  // boxes are only rendered when `linked` is true, and the fetch effect
+  // will flip this to false once it resolves. The handler below also
+  // resets it to true whenever the active steamId changes.
+  const [countsLoading, setCountsLoading] = useState<boolean>(true);
   // True when the most recent count fetch hit a rate limit and we kept
   // the previous values instead of overwriting with 0/'-'. Drives the
   // small "Steam is rate-limiting us" hint under the InfoBoxes.
@@ -1863,9 +1878,23 @@ const ProfileScreen: React.FC = () => {
   const profileRef = useRef(profile);
   profileRef.current = profile;
 
-  // Sign-in handlers - stubs. Wiring will be added later.
-  const runSteamSignIn = useCallback(() => {}, []);
+  // Sign-in handlers. Steam goes through SteamAuth (OpenID + WebView,
+  // see src/auth/steam/SteamAuth.tsx for the full security narrative).
+  // Google is still a stub — independent identity, not yet implemented.
+  const {
+    signIn: runSteamSignIn,
+    signOut: runSteamSignOut,
+    loginError: steamLoginError,
+  } = useSteamAuth();
   const runGoogleSignIn = useCallback(() => {}, []);
+
+  // Surface SteamAuth errors through the existing styled popup. We don't
+  // pop one for 'cancelled' — silent close on user-initiated dismissal.
+  useEffect(() => {
+    if (!steamLoginError) return;
+    if (steamLoginError === 'cancelled') return;
+    setErrorOpen({ provider: 'steam', reason: steamLoginError });
+  }, [steamLoginError]);
 
   const animateProfileChange = useCallback((apply: () => void) => {
     Animated.timing(contentOpacity, {
@@ -1956,6 +1985,18 @@ const ProfileScreen: React.FC = () => {
     // Immediately start fetching counts for the new profile
     fetchAndApplyCounts(p.steamId);
   }, [setLinkedProfile, animateProfileChange, fetchAndApplyCounts]);
+
+  // Reset countsLoading to true synchronously whenever we get a new
+  // steamId we haven't fetched for yet. Without this, a sign-out →
+  // sign-in cycle (or a profile swap via search) would briefly show the
+  // previous user's cached numbers between the steamId update and the
+  // fetch effect firing below. useLayoutEffect runs before paint, so
+  // the first render with the new steamId already has dots showing.
+  useLayoutEffect(() => {
+    if (linked && profile.steamId && profile.steamId !== classifiedIdRef.current) {
+      setCountsLoading(true);
+    }
+  }, [linked, profile.steamId]);
 
   // On mount: fetch counts for a saved profile loaded from storage
   useEffect(() => {
@@ -2373,11 +2414,21 @@ const ProfileScreen: React.FC = () => {
           const which = signOutOpen;
           setSignOutOpen(null);
           if (which === 'steam') {
+            // SteamAuth.signOut fires the async cleanup (cookie-jar logout,
+            // scheduler reset, @steam/* storage wipe). It calls
+            // unlinkProfile internally too, but the call below from
+            // animateProfileChange is the one the LayoutAnimation actually
+            // captures — unlinkProfile is idempotent so the duplicate is
+            // harmless.
+            void runSteamSignOut();
             animateProfileChange(() => unlinkProfile());
           } else if (which === 'google') {
             animateProfileChange(() => unlinkGoogle());
           } else {
-            // 'all' - clear everything.
+            // 'all' - clear everything (Steam goes through SteamAuth.signOut
+            // so the cookie jar + scheduler are also reset; Google is
+            // independent and just gets a local unlink).
+            void runSteamSignOut();
             animateProfileChange(() => {
               unlinkProfile();
               unlinkGoogle();

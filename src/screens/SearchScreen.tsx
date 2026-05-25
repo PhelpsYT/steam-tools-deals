@@ -4,7 +4,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useNavigation } from '@react-navigation/native';
 import { colors } from '../theme';
 import { SteamHeader, SteamSubHeader, LoadingLine } from '../components';
-import { setSwipeNavigation, setIndicatorStretch, resetIndicatorStretch } from '../navigation/TabNavigator';
+import { setSwipeNavigation, setIndicatorStretch, resetIndicatorStretch } from '../navigation/tabGestures';
 
 const TAB_ORDER = ['Home', 'Search', 'Deals', 'Settings'];
 
